@@ -28,20 +28,43 @@ async def get_crypto_price(symbol):
         print(f"Network error: {e}")
         return "Error"
 
-@dp.message(Command("start"))
-async def send_welcome(message: types.Message):
-    await message.reply("Hello!\nSend /btc to get the current Bitcoin price.")
-
-@dp.message(Command("btc"))
-async def send_btc_price(message: types.Message):
-    price = await get_crypto_price("BTC")
+async def send_price(message: types.Message, symbol: str):
+    price = await get_crypto_price(symbol)
     
     if price == "Error":
         await message.answer("Failed to retrieve data from the Binance server.")
         return
 
     pretty_price = f"{float(price):,.2f}".replace(',', ' ')
-    await message.answer(f"Current BTC price: ${pretty_price}")
+    await message.answer(f"Current {symbol} price: ${pretty_price}")
+
+@dp.message(Command("start"))
+async def send_welcome(message: types.Message):
+    welcome_text = (
+        "Hello! I'm crypto bot.\n"
+        "Available commands:\n"
+        "/btc - Bitcoin\n"
+        "/eth - Ethereum\n"
+        "/bnb - Binance Coin\n"
+        "/sol - Solana"
+    )
+    await message.reply(welcome_text)
+
+@dp.message(Command("btc"))
+async def btc_command(message: types.Message):
+    await send_price(message, "BTC")
+
+@dp.message(Command("eth"))
+async def eth_command(message: types.Message):
+    await send_price(message, "ETH")
+
+@dp.message(Command("bnb"))
+async def bnb_command(message: types.Message):
+    await send_price(message, "BNB")
+
+@dp.message(Command("sol"))
+async def sol_command(message: types.Message):
+    await send_price(message, "SOL")
 
 async def main():
     print("Bot is running...")
